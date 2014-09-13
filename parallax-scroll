@@ -1,0 +1,137 @@
+$(document).ready(function () {
+
+    $.fn.is_on_screen = function () {
+        var win = $(window);
+        var viewport = {
+            top: win.scrollTop(),
+            left: win.scrollLeft()
+        };
+
+        viewport.right = viewport.left + win.width();
+        viewport.bottom = viewport.top + win.height();
+
+        var bounds = this.offset();
+        bounds.right = bounds.left + this.outerWidth();
+        bounds.bottom = bounds.top + this.outerHeight();
+
+        return (!(viewport.right < bounds.left || viewport.left > bounds.right || viewport.bottom < bounds.top || viewport.top > bounds.bottom));
+
+    };
+
+
+
+    function calculateScrollSpeed() {
+        var leftPaneHeight = $('#leftPane').outerHeight();
+        var rightPaneHeight = $('#rightPane').outerHeight();
+        var browserHeight = $(window).height();
+        var windowScrollTop = $(window).scrollTop();
+        var headHeight = $('#head').outerHeight();
+        var footHeight = $('#foot').outerHeight();
+
+        if (rightPaneHeight > leftPaneHeight) {
+
+            return -windowScrollTop * ((browserHeight - (rightPaneHeight + headHeight)) / (browserHeight - (leftPaneHeight + headHeight)))
+
+
+        } else {
+            return -windowScrollTop * ((browserHeight - (leftPaneHeight + headHeight)) / (browserHeight - (rightPaneHeight + headHeight)))
+        }
+
+    };
+
+    function calculateNewScrollSpeed() {
+        var leftPaneHeight = $('#leftPane').outerHeight();
+        var rightPaneHeight = $('#rightPane').outerHeight();
+        var browserHeight = $(window).height();
+        var windowScrollTop = $(window).scrollTop();
+        var headHeight = $('#head').outerHeight();
+        var footHeight = $('#foot').outerHeight();
+
+        if (rightPaneHeight > leftPaneHeight) {
+
+            return -(windowScrollTop + ((browserHeight - leftPaneHeight) - (browserHeight - rightPaneHeight)) - headHeight)
+        } else {
+            return -(windowScrollTop + ((browserHeight - rightPaneHeight) - (browserHeight - leftPaneHeight)) - headHeight)
+        }
+    };
+
+    var leftPaneHeight = $('#leftPane').outerHeight();
+    var rightPaneHeight = $('#rightPane').outerHeight();
+    var headHeight = $('#head').outerHeight();
+    var win = $(window);
+
+
+    // position on load
+    if ($('#foot').length > 0) {
+        if ($('#foot').is_on_screen()) {
+            win.bind('resize', function () {
+                if (rightPaneHeight > leftPaneHeight) {
+                    $("#rightPane").css({
+                        'top': (calculateNewScrollSpeed()),
+                        'position': 'fixed'
+                    });
+                } else {
+                    $("#leftPane").css({
+                        'top': (calculateNewScrollSpeed()),
+                        'position': 'fixed'
+                    });
+                }
+
+            });
+
+        } else { //when footer is not on screen
+            win.bind('resize', function () {
+                if (rightPaneHeight > leftPaneHeight) {
+                    $("#rightPane").css({
+                        'top': (calculateScrollSpeed() + headHeight),
+                            'position': 'fixed'
+                    });
+                } else {
+                    $("#leftPane").css({
+                        'top': (calculateScrollSpeed() + headHeight),
+                        'position': 'fixed'
+                    });
+                }
+            });
+        }
+    };
+
+    // when scrolling
+    $(window).scroll(function () {
+        var leftPaneHeight = $('#leftPane').outerHeight();
+        var rightPaneHeight = $('#rightPane').outerHeight();
+        var headHeight = $('#head').outerHeight();
+
+        if ($('#foot').length > 0) {
+            if ($('#foot').is_on_screen()) {
+                if (rightPaneHeight > leftPaneHeight) {
+                    $("#rightPane").css({
+                        'top': (calculateNewScrollSpeed()),
+                        'position': 'fixed'
+                    });
+                } else {
+                    $("#leftPane").css({
+                        'top': (calculateNewScrollSpeed()),
+                        'position': 'fixed'
+                    });
+
+                };
+
+            } else {
+                if (rightPaneHeight > leftPaneHeight) {
+                    $("#rightPane").css({
+                        'top': (calculateScrollSpeed() + headHeight),
+                        'position': 'fixed'
+                    });
+                } else {
+                    $("#leftPane").css({
+                        'top': (calculateScrollSpeed() + headHeight),
+                        'position': 'fixed'
+                    });
+                }
+            };
+        }
+
+
+    });
+});
